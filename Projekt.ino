@@ -3,12 +3,15 @@
 
 #include <PubSubClient.h>
 #include <WiFiManager.h>   // Bibliothek einbinden, um Uebergabe der WiFi Credentials ueber einen AP zu ermoeglichen
-
+#include <WiFiClient.h>
 
 //WLAN
 WiFiClient espClient;
 PubSubClient client(espClient);
 WiFiManager wifiManager;
+
+char* ssid = "";
+char* password = "";
 
 //NODE RED SERVER
 const char* mqtt_server = "mqtt.iot.informatik.uni-oldenburg.de";
