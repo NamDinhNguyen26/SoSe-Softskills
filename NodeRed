@@ -1,0 +1,580 @@
+[
+    {
+        "id": "131e09110feadd68",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "cd51e42a652040fc",
+        "type": "ui_numeric",
+        "z": "131e09110feadd68",
+        "name": "",
+        "label": "Numeric",
+        "tooltip": "",
+        "group": "8542ada3a720beae",
+        "order": 2,
+        "width": "6",
+        "height": "1",
+        "wrap": false,
+        "passthru": false,
+        "topic": "counter",
+        "topicType": "msg",
+        "format": "{{value}}",
+        "min": "0",
+        "max": "5",
+        "step": "1",
+        "className": "",
+        "x": 300,
+        "y": 700,
+        "wires": [
+            [
+                "fa1a617316ab5cc7"
+            ]
+        ]
+    },
+    {
+        "id": "85adb47209112ad7",
+        "type": "mqtt out",
+        "z": "131e09110feadd68",
+        "name": "Arduino Output",
+        "topic": "temp",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f255954484b0bb57",
+        "x": 960,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "07feed02606f9d9a",
+        "type": "ui_slider",
+        "z": "131e09110feadd68",
+        "name": "",
+        "label": "Slider",
+        "tooltip": "",
+        "group": "8542ada3a720beae",
+        "order": 1,
+        "width": "6",
+        "height": "1",
+        "passthru": false,
+        "outs": "all",
+        "topic": "counter",
+        "topicType": "msg",
+        "min": "5",
+        "max": "28",
+        "step": 1,
+        "className": "",
+        "x": 310,
+        "y": 860,
+        "wires": [
+            [
+                "ec4c9917a7cbd95e",
+                "01f0c39cd8a06afb"
+            ]
+        ]
+    },
+    {
+        "id": "7baac0b2d0ec359a",
+        "type": "function",
+        "z": "131e09110feadd68",
+        "name": "s funktion",
+        "func": "var payload = msg.payload;\n\n\nif (payload == 5) {payload = 0;}\nelse if (payload >= 6 && payload <= 12) {payload = 1;}\nelse if (payload >= 13 && payload <= 16) {payload = 2;}\nelse if (payload >= 17 && payload <= 20) {payload = 3;}\nelse if (payload >= 21 && payload <= 24) {payload = 4;}\nelse if (payload >= 25 && payload <= 28) {payload = 5;}\n\nmsg.payload=payload;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 160,
+        "y": 700,
+        "wires": [
+            [
+                "cd51e42a652040fc"
+            ]
+        ]
+    },
+    {
+        "id": "fa1a617316ab5cc7",
+        "type": "function",
+        "z": "131e09110feadd68",
+        "name": "n funktion",
+        "func": "var payload = msg.payload;\n\nif (payload == 0){\n    payload = 5;\n}\nelse if (payload == 1){\n    payload = 12;\n}\nelse if (payload == 2){\n    payload = 16;\n}\nelse if (payload == 3){\n    payload = 20;\n}\nelse if (payload == 4){\n    payload = 24;\n}\nelse if (payload == 5){\n    payload = 28;\n}\n\nmsg.payload=payload;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 700,
+        "wires": [
+            [
+                "ec4c9917a7cbd95e",
+                "01f0c39cd8a06afb"
+            ]
+        ]
+    },
+    {
+        "id": "91c6c01fd49dd853",
+        "type": "mqtt in",
+        "z": "131e09110feadd68",
+        "name": "Input Arduino ",
+        "topic": "automatictemp",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "f255954484b0bb57",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 430,
+        "y": 580,
+        "wires": [
+            [
+                "41ff5aeb6cbb1b20"
+            ]
+        ]
+    },
+    {
+        "id": "51b7e4296d14eaca",
+        "type": "comment",
+        "z": "131e09110feadd68",
+        "name": "Input berechneter Wetterdaten",
+        "info": "",
+        "x": 380,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "a923149aa7cee589",
+        "type": "switch",
+        "z": "131e09110feadd68",
+        "name": "true or false",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 390,
+        "y": 280,
+        "wires": [
+            [
+                "a095964d14eeb669",
+                "f047324d516e5149"
+            ],
+            [
+                "9a423f44391bf794",
+                "f047324d516e5149"
+            ]
+        ]
+    },
+    {
+        "id": "263ddefa25ec7413",
+        "type": "ui_switch",
+        "z": "131e09110feadd68",
+        "name": "",
+        "label": "Automatisch Off / On",
+        "tooltip": "",
+        "group": "02e25ac5df9298ac",
+        "order": 1,
+        "width": "6",
+        "height": "1",
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": true,
+        "className": "",
+        "x": 200,
+        "y": 280,
+        "wires": [
+            [
+                "a923149aa7cee589"
+            ]
+        ]
+    },
+    {
+        "id": "9a423f44391bf794",
+        "type": "change",
+        "z": "131e09110feadd68",
+        "name": "manuel",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"group\":{\"hide\":[],\"show\":[\"project_Diagrams\",\"project_Inputs\",\"project_Switches\"]}}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 400,
+        "wires": [
+            [
+                "a8099c1fb075efdb"
+            ]
+        ]
+    },
+    {
+        "id": "a8099c1fb075efdb",
+        "type": "ui_ui_control",
+        "z": "131e09110feadd68",
+        "name": "",
+        "events": "change",
+        "x": 740,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a095964d14eeb669",
+        "type": "change",
+        "z": "131e09110feadd68",
+        "name": "automatic",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"group\":{\"hide\":[\"project_Inputs\"],\"show\":[\"project_Diagrams\",\"project_Switches\"]}}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 200,
+        "wires": [
+            [
+                "88b9eec28e69c212"
+            ]
+        ]
+    },
+    {
+        "id": "88b9eec28e69c212",
+        "type": "ui_ui_control",
+        "z": "131e09110feadd68",
+        "name": "",
+        "events": "change",
+        "x": 740,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f047324d516e5149",
+        "type": "mqtt out",
+        "z": "131e09110feadd68",
+        "name": "Output Arduino ",
+        "topic": "temp",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f255954484b0bb57",
+        "x": 600,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "ec4c9917a7cbd95e",
+        "type": "counter",
+        "z": "131e09110feadd68",
+        "name": "",
+        "init": "0",
+        "step": "1",
+        "lower": "",
+        "upper": "1",
+        "mode": "increment",
+        "outputs": "1",
+        "x": 280,
+        "y": 780,
+        "wires": [
+            [
+                "7baac0b2d0ec359a",
+                "07feed02606f9d9a"
+            ]
+        ]
+    },
+    {
+        "id": "01f0c39cd8a06afb",
+        "type": "rbe",
+        "z": "131e09110feadd68",
+        "name": "",
+        "func": "rbe",
+        "gap": "",
+        "start": "",
+        "inout": "out",
+        "septopics": true,
+        "property": "payload",
+        "topi": "topic",
+        "x": 690,
+        "y": 860,
+        "wires": [
+            [
+                "85adb47209112ad7",
+                "41ff5aeb6cbb1b20"
+            ]
+        ]
+    },
+    {
+        "id": "454e5e0fb9ad99be",
+        "type": "ui_gauge",
+        "z": "131e09110feadd68",
+        "name": "",
+        "group": "7e580d72844b435f",
+        "order": 2,
+        "width": "6",
+        "height": "5",
+        "gtype": "gage",
+        "title": "Temp Gauge",
+        "label": "C°",
+        "format": "{{value}}",
+        "min": "5",
+        "max": "28",
+        "colors": [
+            "#4d62fe",
+            "#f7a922",
+            "#fe6c6c"
+        ],
+        "seg1": "12,5",
+        "seg2": "22",
+        "className": "",
+        "x": 1190,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "94330e2c061ec588",
+        "type": "ui_chart",
+        "z": "131e09110feadd68",
+        "name": "",
+        "group": "7e580d72844b435f",
+        "order": 1,
+        "width": 6,
+        "height": 5,
+        "label": "Temp-Time Graph",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "0",
+        "ymax": "30",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "60",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": true,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1210,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "41ff5aeb6cbb1b20",
+        "type": "trigger",
+        "z": "131e09110feadd68",
+        "name": "repeat",
+        "op1": "",
+        "op2": "0",
+        "op1type": "pay",
+        "op2type": "str",
+        "duration": "-101",
+        "extend": false,
+        "overrideDelay": false,
+        "units": "ms",
+        "reset": "",
+        "bytopic": "all",
+        "topic": "topic",
+        "outputs": 1,
+        "x": 930,
+        "y": 580,
+        "wires": [
+            [
+                "94330e2c061ec588",
+                "454e5e0fb9ad99be"
+            ]
+        ]
+    },
+    {
+        "id": "097bdd89f4d0f305",
+        "type": "comment",
+        "z": "131e09110feadd68",
+        "name": "gibt alle 100 Millisekunden eine Nachricht an die Anzeigen",
+        "info": "",
+        "x": 1090,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "a55fb31a9db418d4",
+        "type": "comment",
+        "z": "131e09110feadd68",
+        "name": "Output gibt Temperatur einstellung an Arduino weiter",
+        "info": "",
+        "x": 1070,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "04a237bdd9f1b92a",
+        "type": "comment",
+        "z": "131e09110feadd68",
+        "name": "Manueller Input",
+        "info": "",
+        "x": 180,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "aa90b03ff0bae79b",
+        "type": "comment",
+        "z": "131e09110feadd68",
+        "name": "Input berechneter Wetterdaten",
+        "info": "",
+        "x": 220,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "d070645f9f5a362d",
+        "type": "comment",
+        "z": "131e09110feadd68",
+        "name": "false, Fenster öffnet sich und sendet false ans Arduino",
+        "info": "",
+        "x": 740,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "f3bb1c8c38653722",
+        "type": "comment",
+        "z": "131e09110feadd68",
+        "name": "true, Fenster schließt sich und sendet true ans Arduino",
+        "info": "",
+        "x": 740,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "8542ada3a720beae",
+        "type": "ui_group",
+        "name": "Inputs",
+        "tab": "1084a74ab24f28a2",
+        "order": 4,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "f255954484b0bb57",
+        "type": "mqtt-broker",
+        "name": "Projekt",
+        "broker": "mqtt.iot.informatik.uni-oldenburg.de",
+        "port": "2883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "sessionExpiry": ""
+    },
+    {
+        "id": "02e25ac5df9298ac",
+        "type": "ui_group",
+        "name": "Switches",
+        "tab": "1084a74ab24f28a2",
+        "order": 1,
+        "disp": false,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "7e580d72844b435f",
+        "type": "ui_group",
+        "name": "Diagrams",
+        "tab": "1084a74ab24f28a2",
+        "order": 3,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "1084a74ab24f28a2",
+        "type": "ui_tab",
+        "name": "project",
+        "icon": "Dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
