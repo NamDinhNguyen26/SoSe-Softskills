@@ -1,0 +1,334 @@
+[
+    {
+        "id": "91890f7c77268be5",
+        "type": "group",
+        "z": "ef288e02e7d370c9",
+        "name": "",
+        "style": {
+            "fill": "#d1d1d1",
+            "label": true,
+            "fill-opacity": "0.26"
+        },
+        "nodes": [
+            "1cc1376ce957581a",
+            "a99eafa4f1bd21b0",
+            "89b639c844e0a4a4",
+            "f62582b750a5ca8d",
+            "ce7c5a3b748b38c0"
+        ],
+        "x": 54,
+        "y": 93,
+        "w": 1292,
+        "h": 314
+    },
+    {
+        "id": "1cc1376ce957581a",
+        "type": "switch",
+        "z": "ef288e02e7d370c9",
+        "g": "91890f7c77268be5",
+        "name": "true or false",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "true"
+            },
+            {
+                "t": "false"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 370,
+        "y": 280,
+        "wires": [
+            [
+                "dcd288e80636c0cc",
+                "09c05be6a3126e16"
+            ],
+            [
+                "d6c2400ac6de3642",
+                "d222fee824e8cc62"
+            ]
+        ]
+    },
+    {
+        "id": "a99eafa4f1bd21b0",
+        "type": "ui_switch",
+        "z": "ef288e02e7d370c9",
+        "g": "91890f7c77268be5",
+        "name": "",
+        "label": "Automatisch Off / On",
+        "tooltip": "",
+        "group": "02e25ac5df9298ac",
+        "order": 1,
+        "width": "6",
+        "height": "1",
+        "passthru": true,
+        "decouple": "false",
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "animate": true,
+        "x": 180,
+        "y": 280,
+        "wires": [
+            [
+                "1cc1376ce957581a"
+            ]
+        ]
+    },
+    {
+        "id": "89b639c844e0a4a4",
+        "type": "mqtt out",
+        "z": "ef288e02e7d370c9",
+        "g": "91890f7c77268be5",
+        "name": "Output Arduino ",
+        "topic": "temp",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f255954484b0bb57",
+        "x": 1240,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "f62582b750a5ca8d",
+        "type": "group",
+        "z": "ef288e02e7d370c9",
+        "g": "91890f7c77268be5",
+        "name": "false, Fenster öffnet sich und sendet 200 ans Arduino",
+        "style": {
+            "fill": "#c8e7a7",
+            "fill-opacity": "0.41",
+            "label": true
+        },
+        "nodes": [
+            "d6c2400ac6de3642",
+            "c954996435a77a9b",
+            "d222fee824e8cc62"
+        ],
+        "x": 494,
+        "y": 259,
+        "w": 339,
+        "h": 122
+    },
+    {
+        "id": "d6c2400ac6de3642",
+        "type": "change",
+        "z": "ef288e02e7d370c9",
+        "g": "f62582b750a5ca8d",
+        "name": "manuel",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"group\":{\"hide\":[],\"show\":[\"project_Diagrams\",\"project_Inputs\",\"project_Switches\"]}}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 580,
+        "y": 340,
+        "wires": [
+            [
+                "c954996435a77a9b"
+            ]
+        ]
+    },
+    {
+        "id": "c954996435a77a9b",
+        "type": "ui_ui_control",
+        "z": "ef288e02e7d370c9",
+        "g": "f62582b750a5ca8d",
+        "name": "",
+        "events": "change",
+        "x": 720,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d222fee824e8cc62",
+        "type": "change",
+        "z": "ef288e02e7d370c9",
+        "g": "f62582b750a5ca8d",
+        "name": "set to 200",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "200",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 580,
+        "y": 300,
+        "wires": [
+            [
+                "89b639c844e0a4a4"
+            ]
+        ]
+    },
+    {
+        "id": "ce7c5a3b748b38c0",
+        "type": "group",
+        "z": "ef288e02e7d370c9",
+        "g": "91890f7c77268be5",
+        "name": "true, Fenster schließt sich und sendet 100 ans Arduino",
+        "style": {
+            "fill": "#7fb7df",
+            "label": true,
+            "fill-opacity": "0.41"
+        },
+        "nodes": [
+            "dcd288e80636c0cc",
+            "09c05be6a3126e16",
+            "bef156d2292d5082"
+        ],
+        "x": 494,
+        "y": 119,
+        "w": 347,
+        "h": 122
+    },
+    {
+        "id": "dcd288e80636c0cc",
+        "type": "change",
+        "z": "ef288e02e7d370c9",
+        "g": "ce7c5a3b748b38c0",
+        "name": "set to 100",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "100",
+                "tot": "num"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 580,
+        "y": 200,
+        "wires": [
+            [
+                "89b639c844e0a4a4"
+            ]
+        ]
+    },
+    {
+        "id": "09c05be6a3126e16",
+        "type": "change",
+        "z": "ef288e02e7d370c9",
+        "g": "ce7c5a3b748b38c0",
+        "name": "automatic",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "{\"group\":{\"hide\":[\"project_Inputs\"],\"show\":[\"project_Diagrams\",\"project_Switches\"]}}",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 580,
+        "y": 160,
+        "wires": [
+            [
+                "bef156d2292d5082"
+            ]
+        ]
+    },
+    {
+        "id": "bef156d2292d5082",
+        "type": "ui_ui_control",
+        "z": "ef288e02e7d370c9",
+        "g": "ce7c5a3b748b38c0",
+        "name": "",
+        "events": "change",
+        "x": 720,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "02e25ac5df9298ac",
+        "type": "ui_group",
+        "name": "Switches",
+        "tab": "1084a74ab24f28a2",
+        "order": 1,
+        "disp": false,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "f255954484b0bb57",
+        "type": "mqtt-broker",
+        "name": "Projekt",
+        "broker": "mqtt.iot.informatik.uni-oldenburg.de",
+        "port": "2883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "1084a74ab24f28a2",
+        "type": "ui_tab",
+        "name": "project",
+        "icon": "Dashboard",
+        "disabled": false,
+        "hidden": false
+    }
+]
