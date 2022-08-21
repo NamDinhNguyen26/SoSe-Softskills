@@ -217,7 +217,7 @@ void reconnect() {
 }
 
 //Setzt Temperatur je nach Außentemperatur
-void automatischeTemperatur(){
+void automaticTemperature(){
   
   if (temperature < 5){
     temperature = 24;
@@ -254,7 +254,7 @@ if (automatic == false){             // Bei false Manuelle Steuerung der Tempera
 else{                                 //sonst automatische Steuerung
   if(millis() - lastMsg > 5000){
     getCurrentWeatherConditions();     // Daten aus Wetter Api nehmen und umgerechnet zu nodered schicken
-    automatischeTemperatur();   
+    automaticTemperature();   
     lastMsg = millis();
     
   }
