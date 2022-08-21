@@ -3,15 +3,12 @@
 
 #include <PubSubClient.h>
 #include <WiFiManager.h>   // Bibliothek einbinden, um Uebergabe der WiFi Credentials ueber einen AP zu ermoeglichen
-#include <WiFiClient.h>
+
 
 //WLAN
 WiFiClient espClient;
 PubSubClient client(espClient);
 WiFiManager wifiManager;
-
-char* ssid = "";
-char* password = "";
 
 //NODE RED SERVER
 const char* mqtt_server = "mqtt.iot.informatik.uni-oldenburg.de";
@@ -43,35 +40,43 @@ boolean automatic = false; // Boolean für Auto Steuerung True = an, False = aus
 int lastMsg = 0; //Für 5 Sekunden Delay bei der API
 int lastMsg2 = 0; // Für 5 Sekunden Delay beim checken des Temperaturwertes 
 int val = 0; // Value zum publishen der Payload bei Auto Steuerung
+int kali = 23; //Kalibrierung
+
+int last = 0;
 
 
 //METHODEN
 
 
 //MOTOR
-void drehen(){   //Methode zum drehen des Motors um den Abstand vom jetzigem Step zum zukünftigen Step in die jeweils richtige Richtung
-int dreh = currentstate - futurestate;
-if (dreh > 0){
+void spin(){ //Methode zum drehen des Motors um den Abstand vom jetzigem Step zum zukünftigen Step in die jeweils richtige Richtung
+  
+int spinstate = currentstate - futurestate;
+
+if (spinstate > 0){  
+  
   digitalWrite(dirPin,HIGH);
   
-for(int x = 0; x<dreh; x++) {
-   digitalWrite(stepPin,HIGH);
+for(int x = 0; x < spinstate; x++) {  
+  digitalWrite(stepPin,HIGH);
   delayMicroseconds(500);
   digitalWrite(stepPin,LOW);
   delayMicroseconds(500);
+  
+  }
 }
-}
-else if (dreh < 0){
-  dreh = dreh * -1;
 
+else if (spinstate < 0){ 
+  spinstate = spinstate * -1;
   digitalWrite(dirPin,LOW);
   
-  for(int x = 0; x<dreh; x++) {
-   digitalWrite(stepPin,HIGH);
+  for(int x = 0; x < spinstate; x++) {    
+  digitalWrite(stepPin,HIGH);
   delayMicroseconds(500);
   digitalWrite(stepPin,LOW);
   delayMicroseconds(500);
-  }
+    
+    }
   }
 currentstate = futurestate; // sobald Motor sich gedreht hat sind beide Werte identisch
 }
@@ -80,11 +85,12 @@ currentstate = futurestate; // sobald Motor sich gedreht hat sind beide Werte id
 //WETTER
 void getCurrentWeatherConditions() {            //Ermittelt den Celsius Wert in Oldenburg per API
   
-  if (espClient.connect("api.openweathermap.org", 80)) {
-   espClient.println("GET /data/2.5/weather?q=" + city + ",DE&units=metric&lang=de&APPID=" + api_key);
+  if (espClient.connect("api.openweathermap.org", 80)) {    
+    espClient.println("GET /data/2.5/weather?q=" + city + ",DE&units=metric&lang=de&APPID=" + api_key);
     espClient.println("Host: api.openweathermap.org");
     espClient.println("Connection: close");
     espClient.println();
+    
   } 
   
   const size_t capacity = JSON_ARRAY_SIZE(2) + 2 * JSON_OBJECT_SIZE(1) + 2 * JSON_OBJECT_SIZE(2) + 2 * JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(6) + JSON_OBJECT_SIZE(14) + 360;
@@ -94,31 +100,25 @@ void getCurrentWeatherConditions() {            //Ermittelt den Celsius Wert in 
 
   int temperature_Celsius = doc["main"]["temp"];
   temperature = (int)temperature_Celsius;
-  Serial.println(temperature_Celsius);
-
-  
+  Serial.println(temperature_Celsius);  
 }
-
-
 
 //PAYLOAD
 void callback(char* topic, byte* payload, unsigned int length) { //Bekommt einen neuen Wert von Node Red sobald ein neuer Wert existiert
+  
   char receivedPayload[length];
   
-  for (int i = 0; i < length; i++) {
-   
+  for (int i = 0; i < length; i++) {  
     receivedPayload[i] = (char) payload[i];
+    
   }
- 
-  temperature = atoi(receivedPayload);
-  Serial.println(temperature);
-
   
+  temperature = atoi(receivedPayload); 
   }
+
 
 //SETUP
 void setup() {
-
 
 Serial.begin(9600);
 
@@ -129,22 +129,23 @@ wifiManager.autoConnect("Wemos_D1");
 client.setServer(mqtt_server, mqtt_port);
 client.setCallback(callback);
 
-  //Stepper
-  pinMode(dirPin, OUTPUT);  
-  pinMode(stepPin, OUTPUT);
-  //pinmode(notAus, OUTPUT); 
-
+//Stepper
+pinMode(dirPin, OUTPUT);  
+pinMode(stepPin, OUTPUT);
+pinmode(notAus, OUTPUT); 
 
 }
 
+//Hilfsmethoden der loop() Methode:
+
 //AUTOMATIC
 void checkAuto(){                   // Guckt ob automatische Steuerung aktiviert wurde oder nicht
-  if (temperature == 100){
+  if (temperature == 100){  
     automatic = true;
     
   }
   
-  if (temperature == 200){
+  if (temperature == 200){    
     automatic = false;
     temperature = lastTemp;
     
@@ -165,29 +166,33 @@ void checkAuto(){                   // Guckt ob automatische Steuerung aktiviert
 
 //TEMPERATURCHECK
 void currentTemperatureCheck(){         //Gibt die Aktuelle Einstellung der Heizung aus und berechnet den zukünftigen Schritt neu aus
-  if (millis() - lastMsg2 > 5000){
-  lastMsg2 = millis();
-  futurestate = (temperature -5)*10;
-  Serial.println("Heizung ist auf: " + temperature + " Grad gestellt!");
-   lastTemp = temperature;
-  Serial.println("Zukuenftiger Schritt ist bei: "+ futurestate);
-  Serial.println("Jetziger Schritt ist bei: " + currentstate);
-  Serial.println();
+  if (millis() - lastMsg2 > 5000){  
+    lastMsg2 = millis();
+    futurestate = (temperature -5)* kali;    
+    lastTemp = temperature;    
 
-  if (automatic == true){               // Wenn automatic true ist sendet der den aktuellen Temperaturwert zu Nodered
-  val = temperature;
-  String val_str = String(val);
-  char val_buff [val_str.length() + 1];
-  val_str.toCharArray(val_buff, val_str.length()+1);
-  client.publish(mqtt_topic_publish, val_buff);
+    if (automatic == true){  // Wenn automatic true ist sendet der den aktuellen Temperaturwert zu Nodered   
+      val = temperature;
+      String val_str = String(val);
+      char val_buff [val_str.length() + 1];
+      val_str.toCharArray(val_buff, val_str.length()+1);
+      client.publish(mqtt_topic_publish, val_buff);
+  
 }
-}
+
+if (last == 0){  
+  currentstate = futurestate;  
+  last = 1;
+  
+    }
+  }
 }
 
 //RECONNECT 
 void reconnect() {
+  
   // Schleife bis wir connected sind
-  while (!client.connected()) {
+  while (!client.connected()) { 
     Serial.print("Attempting MQTT connection...");
 
     //Client ID MUSS inviduell sein, da der MQTT Broker nicht mehrere Clients mit derselben ID bedienen kann
@@ -195,39 +200,25 @@ void reconnect() {
     clientId += String(random(0xffff), HEX);
 
     // Verbinden   
-    if (client.connect(clientId.c_str(), mqtt_user, mqtt_pw)) {
-      Serial.println("connected");
-      
+    if (client.connect(clientId.c_str(), mqtt_user, mqtt_pw)) {   
+      Serial.println("connected");      
       client.subscribe(mqtt_topic_subscribe);
       
-    } else {
+    } 
+    else {  
       Serial.print("failed, rc=");
       Serial.print(client.state());
       Serial.println(" try again in 5 seconds");
       // Wait 5 seconds before retrying
       delay(5000);
+      
     }
   }
 }
 
-//LOOP
-void loop (){
-
-  client.loop();
+//Setzt Temperatur je nach Außentemperatur
+void automaticTemperature(){
   
-  checkAuto();                       //gucken ob autosteurung aus node red an ist
-  
-
-if (automatic == false){             // Bei false Manuelle Steuerung der Temperatur über Node Red
-
-if (currentstate != futurestate){
-drehen();                            //Motor dreht sich wenn der zukünftige Schrittwert sich verändert hat
-}
-
-}
-else{                                 //sonst automatische Steuerung
-if(millis() - lastMsg > 5000){
-  getCurrentWeatherConditions();     // Daten aus Wetter Api nehmen und umgerechnet zu nodered schicken
   if (temperature < 5){
     temperature = 24;
   }
@@ -242,21 +233,38 @@ if(millis() - lastMsg > 5000){
   }
   else {
     temperature = 5;
-  }
- 
-  lastMsg = millis();
-
+  }  
 }
 
-drehen();                            //Motor um den neu errechneten Wert aus der API drehen
+
+
+//LOOP
+void loop (){
+
+  client.loop();
+  checkAuto();                       //gucken ob autosteurung aus node red an ist
+  
+if (automatic == false){             // Bei false Manuelle Steuerung der Temperatur über Node Red
+
+  if (currentstate != futurestate){
+  spin();                            //Motor dreht sich wenn der zukünftige Schrittwert sich verändert hat
+  
+  }
+}
+else{                                 //sonst automatische Steuerung
+  if(millis() - lastMsg > 5000){
+    getCurrentWeatherConditions();     // Daten aus Wetter Api nehmen und umgerechnet zu nodered schicken
+    automaticTemperature();   
+    lastMsg = millis();
+    
+  }
+
+  spin();                            //Motor um den neu errechneten Wert aus der API drehen
 }
 
 if (!client.connected()) {            //Neu verbinden falls Verbindung verloren
     reconnect();
   }
 
-  
 currentTemperatureCheck();           //temperatur ausgeben und neuen Futurestate berechnen
- 
- 
  }
