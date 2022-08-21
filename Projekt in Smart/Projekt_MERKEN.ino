@@ -139,6 +139,8 @@ client.setCallback(callback);
 
 }
 
+//Hilfsmethoden der loop() Methode:
+
 //AUTOMATIC
 void checkAuto(){                   // Guckt ob automatische Steuerung aktiviert wurde oder nicht
   if (temperature == 100){
