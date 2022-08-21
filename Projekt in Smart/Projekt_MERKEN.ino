@@ -49,15 +49,15 @@ int last = 0;
 
 
 //MOTOR
-void drehen(){ //Methode zum drehen des Motors um den Abstand vom jetzigem Step zum zukünftigen Step in die jeweils richtige Richtung
+void spin(){ //Methode zum drehen des Motors um den Abstand vom jetzigem Step zum zukünftigen Step in die jeweils richtige Richtung
   
-int dreh = currentstate - futurestate;
+int spinstate = currentstate - futurestate;
 
-if (dreh > 0){  
+if (spinstate > 0){  
   
   digitalWrite(dirPin,HIGH);
   
-for(int x = 0; x<dreh; x++) {  
+for(int x = 0; x < spinstate; x++) {  
   digitalWrite(stepPin,HIGH);
   delayMicroseconds(500);
   digitalWrite(stepPin,LOW);
@@ -66,11 +66,11 @@ for(int x = 0; x<dreh; x++) {
   }
 }
 
-else if (dreh < 0){ 
-  dreh = dreh * -1;
+else if (spinstate < 0){ 
+  spinstate = spinstate * -1;
   digitalWrite(dirPin,LOW);
   
-  for(int x = 0; x<dreh; x++) {    
+  for(int x = 0; x < spinstate; x++) {    
   digitalWrite(stepPin,HIGH);
   delayMicroseconds(500);
   digitalWrite(stepPin,LOW);
@@ -247,7 +247,7 @@ void loop (){
 if (automatic == false){             // Bei false Manuelle Steuerung der Temperatur über Node Red
 
   if (currentstate != futurestate){
-  drehen();                            //Motor dreht sich wenn der zukünftige Schrittwert sich verändert hat
+  spin();                            //Motor dreht sich wenn der zukünftige Schrittwert sich verändert hat
   
   }
 }
@@ -259,7 +259,7 @@ else{                                 //sonst automatische Steuerung
     
   }
 
-  drehen();                            //Motor um den neu errechneten Wert aus der API drehen
+  spin();                            //Motor um den neu errechneten Wert aus der API drehen
 }
 
 if (!client.connected()) {            //Neu verbinden falls Verbindung verloren
