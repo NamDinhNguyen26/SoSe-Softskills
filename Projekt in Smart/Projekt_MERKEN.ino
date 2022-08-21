@@ -49,10 +49,12 @@ int last = 0;
 
 
 //MOTOR
-void drehen(){   //Methode zum drehen des Motors um den Abstand vom jetzigem Step zum zukünftigen Step in die jeweils richtige Richtung
+void drehen(){ //Methode zum drehen des Motors um den Abstand vom jetzigem Step zum zukünftigen Step in die jeweils richtige Richtung
+  
 int dreh = currentstate - futurestate;
-if (dreh > 0){
-  Serial.print("failed, rc=");
+
+if (dreh > 0){  
+  
   digitalWrite(dirPin,HIGH);
   
 for(int x = 0; x<dreh; x++) {
@@ -60,12 +62,12 @@ for(int x = 0; x<dreh; x++) {
   delayMicroseconds(500);
   digitalWrite(stepPin,LOW);
   delayMicroseconds(500);
+  }
 }
-}
+
 else if (dreh < 0){
   dreh = dreh * -1;
-  Serial.print("failed, rc=");
-
+ 
   digitalWrite(dirPin,LOW);
   
   for(int x = 0; x<dreh; x++) {
@@ -73,7 +75,7 @@ else if (dreh < 0){
   delayMicroseconds(500);
   digitalWrite(stepPin,LOW);
   delayMicroseconds(500);
-  }
+    }
   }
 currentstate = futurestate; // sobald Motor sich gedreht hat sind beide Werte identisch
 }
@@ -114,8 +116,6 @@ void callback(char* topic, byte* payload, unsigned int length) { //Bekommt einen
  
   temperature = atoi(receivedPayload);
  
-
-  
   }
 
 //SETUP
@@ -134,7 +134,7 @@ client.setCallback(callback);
   //Stepper
   pinMode(dirPin, OUTPUT);  
   pinMode(stepPin, OUTPUT);
-  //pinmode(notAus, OUTPUT); 
+  pinmode(notAus, OUTPUT); 
 
 
 }
@@ -168,26 +168,22 @@ void checkAuto(){                   // Guckt ob automatische Steuerung aktiviert
 //TEMPERATURCHECK
 void currentTemperatureCheck(){         //Gibt die Aktuelle Einstellung der Heizung aus und berechnet den zukünftigen Schritt neu aus
   if (millis() - lastMsg2 > 5000){
-  lastMsg2 = millis();
-  futurestate = (temperature -5)* kali;
-  Serial.println(temperature);
-   lastTemp = temperature;
-  Serial.println(futurestate);
-  Serial.println(currentstate);
-  Serial.println();
+    
+    lastMsg2 = millis();
+    futurestate = (temperature -5)* kali;    
+    lastTemp = temperature;    
 
-  if (automatic == true){               // Wenn automatic true ist sendet der den aktuellen Temperaturwert zu Nodered
-  val = temperature;
-  String val_str = String(val);
-  char val_buff [val_str.length() + 1];
-  val_str.toCharArray(val_buff, val_str.length()+1);
-  client.publish(mqtt_topic_publish, val_buff);
+    if (automatic == true){               // Wenn automatic true ist sendet der den aktuellen Temperaturwert zu Nodered
+      val = temperature;
+      String val_str = String(val);
+      char val_buff [val_str.length() + 1];
+      val_str.toCharArray(val_buff, val_str.length()+1);
+      client.publish(mqtt_topic_publish, val_buff);
+  
 }
+
 if (last == 0){
-  currentstate = futurestate;
-  Serial.print("done");
-  Serial.println(futurestate);
-  Serial.println(currentstate);
+  currentstate = futurestate;  
   last = 1;
 }
 }
@@ -219,24 +215,9 @@ void reconnect() {
   }
 }
 
-//LOOP
-void loop (){
-
-  client.loop();
+//Setzt Temperatur je nach Außentemperatur
+void automatischeTemperatur(){
   
-  checkAuto();                       //gucken ob autosteurung aus node red an ist
-  
-
-if (automatic == false){             // Bei false Manuelle Steuerung der Temperatur über Node Red
-
-if (currentstate != futurestate){
-drehen();                            //Motor dreht sich wenn der zukünftige Schrittwert sich verändert hat
-}
-
-}
-else{                                 //sonst automatische Steuerung
-if(millis() - lastMsg > 5000){
-  getCurrentWeatherConditions();     // Daten aus Wetter Api nehmen und umgerechnet zu nodered schicken
   if (temperature < 5){
     temperature = 24;
   }
@@ -252,13 +233,36 @@ if(millis() - lastMsg > 5000){
   else {
     temperature = 5;
   }
- 
+  
+}
+
+
+
+//LOOP
+void loop (){
+
+  client.loop();
+  checkAuto();                       //gucken ob autosteurung aus node red an ist
+  
+if (automatic == false){             // Bei false Manuelle Steuerung der Temperatur über Node Red
+
+  if (currentstate != futurestate){
+  drehen();                            //Motor dreht sich wenn der zukünftige Schrittwert sich verändert hat
+  
+  }
+
+}
+else{                                 //sonst automatische Steuerung
+  if(millis() - lastMsg > 5000){
+  getCurrentWeatherConditions();     // Daten aus Wetter Api nehmen und umgerechnet zu nodered schicken
+  automatischeTemperatur();   
   lastMsg = millis();
 
+  }
+
+  drehen();                            //Motor um den neu errechneten Wert aus der API drehen
 }
 
-drehen();                            //Motor um den neu errechneten Wert aus der API drehen
-}
 
 if (!client.connected()) {            //Neu verbinden falls Verbindung verloren
     reconnect();
